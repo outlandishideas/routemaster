@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: WordPress View Controller
+Plugin Name: Routemaster
 Description: An implementation of the MVC pattern where WordPress provides the model.
 */
 
