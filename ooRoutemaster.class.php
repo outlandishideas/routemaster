@@ -16,7 +16,7 @@ abstract class ooRoutemaster extends Routemaster {
 	);
 
     public function dispatchVariables(){
-        return array('view' => $this->view, 'theme' => ooTheme::getInstance());
+        return array('view' => $this->view, '_theme' => ooTheme::getInstance());
     }
 
 	/**
