@@ -1,15 +1,19 @@
 <?php
 
+require_once('View.class.php');
+
 /**
  * Base Routing/Controller/View class. Extend this in your theme.
  */
 abstract class Routemaster {
 	private static $instance;
-	protected $view, $queryArgs, $layout, $viewPath, $viewName, $requestUri, $content;
+	/** @var view View */
+	protected $view;
+	protected $queryArgs, $layout, $viewPath, $viewName, $requestUri;
 	protected $_debug;
 
 	protected function __construct(){
-		$this->view = new stdClass();
+		$this->view = new View();
 	}
 
 	/**
@@ -87,11 +91,6 @@ abstract class Routemaster {
 	 * @param array $args URI parameters
 	 */
 	protected function dispatch($action, $args = array()) {
-		global $wp, $post, $wp_query;
-
-        $temporaryArray = $this->dispatchVariables();
-        extract($temporaryArray, EXTR_OVERWRITE);
-
 		//call action method
 		call_user_func_array(array($this, $action), $args);
 
@@ -99,20 +98,9 @@ abstract class Routemaster {
 		if (!isset($this->viewName)) $this->viewName = $action;
 
 		//render view
-		ob_start();
 		$viewFile = $this->viewPath . $this->viewName . ".php";
-		if (WP_DEBUG) echo "\n\n<!-- start $viewFile -->\n\n";
-		include $viewFile;
-		if (WP_DEBUG) echo "\n\n<!-- end $viewFile -->\n\n";
-		$this->content = ob_get_clean();
-
-		//wrap in layout
-		if (!empty($this->layout)) {
-			$layoutFile = $this->viewPath.$this->layout.".php";
-			include $layoutFile;
-		} else {
-			echo $this->content;
-		}
+		$layoutFile = (empty($this->layout) ? null : $this->viewPath.$this->layout.".php");
+		$this->view->render($viewFile, $layoutFile, $this->dispatchVariables());
 	}
 
 	/**
