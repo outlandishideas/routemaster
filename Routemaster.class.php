@@ -1,19 +1,23 @@
 <?php
 
-require_once('View.class.php');
+require_once('RoutemasterView.class.php');
 
 /**
  * Base Routing/Controller/View class. Extend this in your theme.
  */
 abstract class Routemaster {
 	private static $instance;
-	/** @var view View */
+	/** @var RoutemasterView View */
 	protected $view;
 	protected $queryArgs, $layout, $viewPath, $viewName, $requestUri;
 	protected $_debug;
 
 	protected function __construct(){
-		$this->view = new View();
+		$this->initView();
+	}
+
+	protected function initView() {
+		$this->view = new RoutemasterView();
 	}
 
 	/**
