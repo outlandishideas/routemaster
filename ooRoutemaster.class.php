@@ -15,10 +15,6 @@ abstract class ooRoutemaster extends Routemaster {
 		'|^$|' => 'frontPage' //matches empty string
 	);
 
-    public function dispatchVariables(){
-        return array('view' => $this->view, '_theme' => ooTheme::getInstance());
-    }
-
 	/**
 	 * @var array
 	 */

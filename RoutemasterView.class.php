@@ -5,10 +5,13 @@ class RoutemasterView {
 	public $logDebug = true;
 
 	public function render($viewFile, $layoutFile, $variables = array()) {
-        extract($variables, EXTR_OVERWRITE);
-		global $wp, $post, $wp_query;
-
+		global $post;
 		$this->post = $post;
+
+		// todo: are these two lines necessary now?
+//        extract($variables, EXTR_OVERWRITE);
+//		global $wp, $wp_query;
+
 
 		ob_start();
 		if (WP_DEBUG && $this->logDebug) echo "\n\n<!-- start $viewFile -->\n\n";
