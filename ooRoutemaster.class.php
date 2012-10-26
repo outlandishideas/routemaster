@@ -33,14 +33,14 @@ abstract class ooRoutemaster extends Routemaster {
 
 	protected function sitemap() {
 		$this->layout = false;
-		$this->view->pageItems = ooPost::fetchAll(array('post_type' => 'any', 'orderby' => 'date'	));
+		$this->view->pageItems = new ooWP_Query(array('post_type' => 'any', 'orderby' => 'date'	));
 
 	}
 
 
 	protected function show404() {
 		global $post;
-		$post = ooPost::makeFake(array('post_title' => 'Page not found'));
+		$post = new ooFakePost(array('post_title' => 'Page not found'));
 		parent::show404();
 	}
 
@@ -63,7 +63,7 @@ abstract class ooRoutemaster extends Routemaster {
 	 */
 	protected function query($args) {
 		global $wp_query;
-		$wp_query = ooPost::fetchAll($args);
+		$wp_query = new ooWP_Query($args);
 		return $wp_query;
 	}
 
