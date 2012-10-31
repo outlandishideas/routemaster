@@ -49,6 +49,7 @@ abstract class ooRoutemaster extends Routemaster {
 	protected function redirectCanonical($post) {
 		if (trim(get_bloginfo('url') . '/' . $this->requestUri, ' /') != trim($post->permalink(), ' /')) {
 			wp_redirect($post->permalink());
+			die;
 		}
 	}
 
@@ -66,16 +67,21 @@ abstract class ooRoutemaster extends Routemaster {
 	/**
 	 * Select a single post, set globals and throw 404 exception if nothing matches
 	 * @param $args
-	 * @return ooPost
+	 * @param bool $redirectCanonical true if should redirect canonically after fetching the post
 	 * @throws RoutemasterException
+	 * @return ooPost
 	 */
-	protected function querySingle($args) {
+	protected function querySingle($args, $redirectCanonical = false) {
 		global $post;
 		$query = $this->query($args);
 		//no matched posts so 404
 		if (!count($query)) throw new RoutemasterException('Not found', 404);
 
 		$post = $query[0];
+
+		if ($redirectCanonical) {
+			$this->redirectCanonical($post);
+		}
 
 		return $post;
 	}
@@ -87,7 +93,7 @@ abstract class ooRoutemaster extends Routemaster {
 	 ***********************************************/
 
 	protected function defaultPost($slug) {
-		$post = $this->querySingle(array('name' => $slug, 'post_type' => 'any'));
+		$post = $this->querySingle(array('name' => $slug, 'post_type' => 'any'), true);
 
 		if ($post->post_type == 'page') {
 			if ($this->viewExists('page-' . $post->post_name)) {
@@ -97,7 +103,7 @@ abstract class ooRoutemaster extends Routemaster {
 	}
 
 	protected function frontPage() {
-		$this->querySingle(array('page_id' => get_option('page_on_front')));
+		$this->querySingle(array('page_id' => get_option('page_on_front')), true);
 	}
 
 
