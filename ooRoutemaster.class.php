@@ -15,6 +15,32 @@ abstract class ooRoutemaster extends Routemaster {
 		'|^$|' => 'frontPage' //matches empty string
 	);
 
+	protected function __construct() {
+		parent::__construct();
+		add_filter('post_type_link', array($this, 'permalinkHook'), 10, 4);
+	}
+
+	/** @var null Used in permalinkHook function, to prevent infinite recursion */
+	protected $permalinkHookPostId = null;
+
+	/**
+	 * Overwrites the post_link with the post's permalink()
+	 * @param $post_link
+	 * @param $post
+	 * @param $leavename
+	 * @param $sample
+	 * @return string|void
+	 */
+	public function permalinkHook($post_link, $post, $leavename, $sample) {
+		if ($post->post_name && $post->ID != $this->permalinkHookPostId) {
+			// prevent infinite recursion by saving the ID before calling permalink() (which may come back here again)
+			$this->permalinkHookPostId = $post->ID;
+			$post_link = ooPost::createPostObject($post)->permalink();
+			$this->permalinkHookPostId = null;
+		}
+		return $post_link;
+	}
+
 	/**
 	 * @var array
 	 */
