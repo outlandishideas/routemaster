@@ -13,11 +13,18 @@ abstract class Routemaster {
 	protected $_debug;
 
 	protected function __construct(){
+		add_filter('init', array($this, 'onWpInit'));
 		$this->initView();
 	}
 
 	protected function initView() {
 		$this->view = new RoutemasterView();
+	}
+
+	/**
+	 * called via wordpress init hook
+	 */
+	public function onWpInit() {
 	}
 
 	/**
