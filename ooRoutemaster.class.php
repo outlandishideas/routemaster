@@ -55,7 +55,9 @@ abstract class ooRoutemaster extends Routemaster {
 	}
 
 	protected function sitemap() {
+		header('Content-Type: application/xml');
 		$this->layout = false;
+		$this->view->logDebug = false;
 		$this->view->pageItems = new ooWP_Query(array('post_type' => 'any', 'orderby' => 'date'));
 	}
 
