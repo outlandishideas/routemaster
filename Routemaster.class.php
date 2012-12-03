@@ -14,6 +14,11 @@ abstract class Routemaster {
 
 	protected function __construct(){
 		add_filter('init', array($this, 'onWpInit'));
+
+		//remove these built-in WP actions
+		remove_action('template_redirect','wp_old_slug_redirect');
+		remove_action('template_redirect', 'redirect_canonical');
+
 		$this->initView();
 	}
 
@@ -53,6 +58,7 @@ abstract class Routemaster {
 		$this->requestUri = preg_replace("|^$base/?|", '', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 		$this->_debug['routes'] = $this->routes();
 		$this->_debug['requestUri'] = $this->requestUri;
+
 		//find matching route
 		foreach ($this->routes() as $pattern => $action) {
 			if (preg_match($pattern, $this->requestUri, $matches)) {
@@ -60,25 +66,27 @@ abstract class Routemaster {
 				$this->_debug['matched_action'] = $action;
 				array_shift($matches); //remove first element
 				$this->_debug['action_parameters'] = $matches;
+
+				//store initial values for later
 				$initialValues = array();
 				foreach (array('query', 'queryArgs', 'layout', 'view') as $property) {
 					$initialValues[$property] = isset($this->$property) ? $this->$property : null;
 				}
+
 				try {
 					$this->preDispatch($action, $matches);
 					$this->dispatch($action, $matches);
 					$this->postDispatch($action, $matches);
-					$this->_debug['dispatch'] = 'success';
+
 					//routed successfully
+					$this->_debug['dispatch'] = 'success';
 					return;
 				} catch (RoutemasterException $e) {
 					$this->_debug['dispatch_failures'][] = $e;
 					//route failed so reset and continue routing
-					$wp_query = new WP_Query();
-//					$classVars = get_class_vars(get_called_class());
-//					foreach ($classVars as $name => $value) {
-//						if (in_array($name, array('query', 'queryArgs', 'layout', 'view'))) $this->$name = $value;
-//					}
+					$wp_query->init();
+
+					//reset initial values
 					foreach ($initialValues as $property=>$value) {
 						$this->$property = $value;
 					}
@@ -86,6 +94,7 @@ abstract class Routemaster {
 			}
 		}
 		//no matched route
+		$wp_query->is_404 = true;
 		$this->dispatch('show404');
 	}
 
@@ -104,6 +113,9 @@ abstract class Routemaster {
 	protected function dispatch($action, $args = array()) {
 		//call action method
 		call_user_func_array(array($this, $action), $args);
+
+		//allow plugins to hook in after $wp_query is set but before view is rendered
+		do_action('template_redirect');
 
 		//setup default view
 		if (!isset($this->viewName)) $this->viewName = $action;
