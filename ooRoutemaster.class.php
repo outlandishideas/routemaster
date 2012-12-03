@@ -11,6 +11,7 @@ abstract class ooRoutemaster extends Routemaster {
 	 */
 	static protected $defaultRoutes = array(
 		'|^sitemap.xml$|i' => 'sitemap', //xml sitemap for google etc
+		'|^robots.txt$|' => 'robots',
 		'|([^/]+)/?$|' => 'defaultPost', //matches blah/blah/slug
 		'|^$|' => 'frontPage' //matches empty string
 	);
@@ -55,10 +56,13 @@ abstract class ooRoutemaster extends Routemaster {
 
 	protected function sitemap() {
 		$this->layout = false;
-		$this->view->pageItems = new ooWP_Query(array('post_type' => 'any', 'orderby' => 'date'	));
-
+		$this->view->pageItems = new ooWP_Query(array('post_type' => 'any', 'orderby' => 'date'));
 	}
 
+	protected function robots() {
+		do_action('do_robots');
+		exit;
+	}
 
 	protected function show404() {
 		global $post;
