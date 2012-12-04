@@ -76,10 +76,11 @@ abstract class ooRoutemaster extends Routemaster {
 
 	/**
 	 * Check that the requested URI matches the post permalink and redirect if not
-	 * @param $post
+	 * @param ooPost $post
 	 */
 	protected function redirectCanonical($post) {
-		if (trim(get_bloginfo('url') . '/' . $this->requestUri, ' /') != trim($post->permalink(), ' /')) {
+		$scheme = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+		if ("$scheme://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" != $post->permalink()) {
 			wp_redirect($post->permalink());
 			die;
 		}
