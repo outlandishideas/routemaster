@@ -80,7 +80,8 @@ abstract class ooRoutemaster extends Routemaster {
 	 */
 	protected function redirectCanonical($post) {
 		$scheme = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-		if ("$scheme://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" != $post->permalink()) {
+		$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+		if ("$scheme://$_SERVER[HTTP_HOST]$path" != $post->permalink()) {
 			wp_redirect($post->permalink());
 			die;
 		}
