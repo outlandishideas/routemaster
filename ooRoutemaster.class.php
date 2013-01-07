@@ -36,7 +36,7 @@ abstract class ooRoutemaster extends Routemaster {
 		if ($post->post_name && $post->ID != $this->permalinkHookPostId) {
 			// prevent infinite recursion by saving the ID before calling permalink() (which may come back here again)
 			$this->permalinkHookPostId = $post->ID;
-			$post_link = ooPost::createPostObject($post)->permalink();
+			$post_link = ooPost::createPostObject($post)->permalink($leavename);
 			$this->permalinkHookPostId = null;
 		}
 		return $post_link;
