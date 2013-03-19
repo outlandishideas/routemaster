@@ -1,7 +1,5 @@
 <?php
 
-require_once('RoutemasterView.class.php');
-
 /**
  * Base Routing/Controller/View class. Extend this in your theme.
  */
@@ -80,6 +78,9 @@ abstract class Routemaster {
 		}
 		//no matched route
 		$this->dispatch('show404');
+
+		//don't go through the rest of the WordPress cycle
+		exit;
 	}
 
 	protected function preDispatch($action, $args = array()) { /* do nothing by default */ }
@@ -129,20 +130,12 @@ abstract class Routemaster {
 	 * Test config and set up hook for routing
 	 */
 	public function setup() {
-		if (is_admin()) {
+		if (is_admin() || !defined('WP_USE_THEMES')) {
 			//don't do any routing for admin pages
 			return;
 		} elseif (!get_option('permalink_structure')) {
 			$url = admin_url('options-permalink.php');
 			die("Permalinks must be <a href='$url'>enabled</a>.");
-		} elseif (!defined('ROUTEMASTER')) {
-			if (defined('WP_USE_THEMES') && WP_USE_THEMES) {
-				//came in through index.php so show error
-				die('Requests must be routed through index-rm.php');
-			} else {
-				//came in another way, such as wp-login.php, so stop routing but let WP continue
-				return;
-			}
 		}
 
 		//do routing once WP is fully loaded
