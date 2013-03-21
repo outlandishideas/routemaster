@@ -19,7 +19,13 @@ add_action('plugins_loaded', function(){
 //clean up from earlier version of plugin
 if (file_exists(ABSPATH . 'index-rm.php')) {
 	add_action('init', function(){
+		remove_action('mod_rewrite_rules', 'rm_mod_rewrite_rules');
+		require_once(ABSPATH . 'wp-admin/includes/admin.php');
 		flush_rewrite_rules(true);
 		unlink(ABSPATH . 'index-rm.php');
+		if (!is_admin()) {
+			wp_redirect(get_bloginfo('url'));
+			exit;
+		}
 	});
 }
