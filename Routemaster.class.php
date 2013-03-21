@@ -76,9 +76,8 @@ abstract class Routemaster {
 					$this->dispatch($action, $matches);
 					$this->postDispatch($action, $matches);
 
-					//routed successfully
-					$this->_debug['dispatch'] = 'success';
-					return;
+					//all done
+					exit;
 				} catch (RoutemasterException $e) {
 					$this->_debug['dispatch_failures'][] = $e;
 					//route failed so reset and continue routing
@@ -95,7 +94,7 @@ abstract class Routemaster {
 		$wp_query->is_404 = true;
 		$this->dispatch('show404');
 
-		//don't go through the rest of the WordPress cycle
+		//all done
 		exit;
 	}
 
