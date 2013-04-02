@@ -93,8 +93,8 @@ abstract class ooRoutemaster extends Routemaster {
 	 * @return ooWP_Query
 	 */
 	protected function query($args) {
-		global $wp_query;
-		$wp_query = new ooWP_Query($args);
+		global $wp_query, $wp_the_query;
+		$wp_the_query = $wp_query = new ooWP_Query($args);
 		return $wp_query;
 	}
 
