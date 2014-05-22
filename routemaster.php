@@ -13,6 +13,25 @@ require_once 'RoutemasterException.class.php';
 add_action('plugins_loaded', function(){
 	if (class_exists('ooPost')) {
 		require_once 'ooRoutemaster.class.php';
+
+        //change preview link to have routing that can be picked up by Routemaster
+        add_filter('preview_post_link', function ($link) {
+            $qs = parse_url($link, PHP_URL_QUERY);
+            $args = wp_parse_args($qs);
+
+            //only modify link of unpublished posts (published posts use preview_id param)
+            if (isset($args['p']) || isset($args['page_id'])) {
+                $id = isset($args['p']) ? $args['p'] : $args['page_id'];
+                $post = ulPost::createPostObject($id);
+                if ($post) {
+                    $post->post_name = sanitize_title($post->post_name ? $post->post_name : $post->post_title, $post->ID);
+                    $link = $post->permalink();
+                    $link .= '?' . $qs;
+                }
+            }
+
+            return $link;
+        });
 	}
 });
 

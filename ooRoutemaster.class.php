@@ -107,6 +107,22 @@ abstract class ooRoutemaster extends Routemaster {
 	 */
 	protected function querySingle($args, $redirectCanonical = false) {
 		global $post;
+
+        if (isset($_GET['preview']) && $_GET['preview'] == 'true') {
+            //currently published posts just need this to show the latest autosave instead
+            $args['preview'] = 'true';
+
+            //for unpublished posts, override query entirely
+            if (isset($_GET['p']) || isset($_GET['page_id'])) {
+                $args = array_intersect_key($_GET, array_flip(array('preview', 'p', 'page_id')));
+            }
+
+            //for unpublished posts and posts returned to draft, allow draft status
+            $args['post_status'] = array('draft', 'publish', 'auto-draft');
+
+            $redirectCanonical = false;
+        }
+
 		$query = $this->query($args);
 		//no matched posts so 404
 		if (!count($query)) throw new RoutemasterException('Not found', 404);
