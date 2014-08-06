@@ -22,7 +22,7 @@ add_action('plugins_loaded', function(){
             //only modify link of unpublished posts (published posts use preview_id param)
             if (isset($args['p']) || isset($args['page_id'])) {
                 $id = isset($args['p']) ? $args['p'] : $args['page_id'];
-                $post = ulPost::createPostObject($id);
+                $post = ooPost::createPostObject($id);
                 if ($post) {
                     $post->post_name = sanitize_title($post->post_name ? $post->post_name : $post->post_title, $post->ID);
                     $link = $post->permalink();
