@@ -1,6 +1,6 @@
 {
   "name": "outlandish/routemaster",
-  "type": "wordpress-plugin",
+  "type": "wordpress-muplugin",
   "description": "A routing plugin for WordPress",
   "minimum-stability": "dev",
   "license": "MIT",
