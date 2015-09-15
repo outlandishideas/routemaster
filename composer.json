@@ -3,7 +3,6 @@
   "type": "wordpress-muplugin",
   "description": "A routing plugin for WordPress",
   "minimum-stability": "dev",
-  "license": "MIT",
   "authors": [
     {
       "name": "Rasmus Winter",
