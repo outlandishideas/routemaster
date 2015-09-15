@@ -2,7 +2,8 @@
   "name": "outlandish/routemaster",
   "type": "wordpress-muplugin",
   "description": "A routing plugin for WordPress",
-  "minimum-stability": "dev",
+  "minimum-stability": "dev",,
+  "license": "GPL-3.0",
   "authors": [
     {
       "name": "Rasmus Winter",
