@@ -104,11 +104,44 @@ abstract class Routemaster
         exit;
     }
 
+    /**
+     * This method calls the wordpress do_action for the routemaster pre-dispatch action
+     *
+     * This gets called before the dispatch method, so any actions you want to take before
+     * dispatch can happen here.
+     *
+     * To hook into this process simply add an add_action() function somewhere in your code.
+     * Your function to be hooked in must take in three arguments:
+     *
+     * string          $action the name of the method on this object to be called.
+     * array           $args   the captured patterns from the reg exp match
+     * RoutemasterView $view   the instance of the view attached to this object
+     *                         add any additional properties for the view to this object
+     *
+     * @param string $action function name to be called on dispatch
+     * @param array  $args   array of matches from the Request URI using the pattern defined in routes
+     */
     protected function preDispatch($action, $args = array())
     {
         do_action('outlandish/routemaster/pre-dispatch', $action, $args, $this->view);
     }
 
+    /**
+     * This method calls the wordpress do_action for the routemaster post-dispatch action
+     *
+     * This gets called after the dispatch method, so any clearing up you want to do can
+     * happen here.
+     *
+     * To hook into this process simply add an add_action() function somewhere in your code.
+     * Your function to be hooked in must take in three arguments:
+     *
+     * string          $action the name of the method on this object to be called.
+     * array           $args   the captured patterns from the reg exp match
+     * RoutemasterView $view   the instance of the view attached to this object
+     *
+     * @param string $action function name to be called on dispatch
+     * @param array  $args   array of matches from the Request URI using the pattern defined in routes
+     */
     protected function postDispatch($action, $args = array())
     {
         do_action('outlandish/routemaster/post-dispatch', $action, $args, $this->view);
