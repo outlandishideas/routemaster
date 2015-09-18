@@ -105,11 +105,13 @@ abstract class Routemaster
     }
 
     protected function preDispatch($action, $args = array())
-    { /* do nothing by default */
+    {
+        do_action('outlandish/routemaster/pre-dispatch', $action, $args, $this->view);
     }
 
     protected function postDispatch($action, $args = array())
-    { /* do nothing by default */
+    {
+        do_action('outlandish/routemaster/post-dispatch', $action, $args, $this->view);
     }
 
     public function dispatchVariables()
