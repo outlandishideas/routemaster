@@ -2,8 +2,9 @@
   "name": "outlandish/routemaster",
   "type": "wordpress-muplugin",
   "description": "A routing plugin for WordPress",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "license": "GPL-3.0",
+  "version": "1.1.2",
   "authors": [
     {
       "name": "Rasmus Winter",
@@ -12,6 +13,10 @@
     {
       "name": "Tamlyn Rhodes",
       "email": "tam@outlandish.com"
+    },
+    {
+      "name": "Matthew Kendon",
+      "email": "matt@outlandish.com"
     }
   ]
 }

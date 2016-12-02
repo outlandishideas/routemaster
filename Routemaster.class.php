@@ -8,6 +8,8 @@ abstract class Routemaster
     private static $instance;
     /** @var RoutemasterView View */
     protected $view;
+    /** @var array  a key / value array of routes to action methods */
+    protected $routes;
     protected $queryArgs, $layout, $viewPath, $viewName, $requestUri;
     protected $_debug;
 
@@ -22,9 +24,30 @@ abstract class Routemaster
         $this->initView();
     }
 
+    /**
+     * @param RoutemasterView $view
+     */
+    public function setView(RoutemasterView $view)
+    {
+        $this->view = $view;
+    }
+
+    /**
+     * @param string $path  The absolute path to the view folder
+     */
+    public function setViewPath($path)
+    {
+        $this->viewPath = $path;
+    }
+
+    public function setRoutes(array $routes)
+    {
+        $this->routes = $routes;
+    }
+
     protected function initView()
     {
-        $this->view = new RoutemasterView();
+        $this->setView(new RoutemasterView);
     }
 
     /**
@@ -36,7 +59,7 @@ abstract class Routemaster
 
     /**
      * @static
-     * @return Routemaster|ooRoutemaster Singleton instance
+     * @return Routemaster Singleton instance
      */
     public static function getInstance()
     {
