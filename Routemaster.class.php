@@ -6,7 +6,7 @@
 abstract class Routemaster
 {
     private static $instance;
-    /** @var RoutemasterView View */
+    /** @var RoutemasterViewInterface View */
     protected $view;
     /** @var array  a key / value array of routes to action methods */
     protected $routes;
@@ -25,9 +25,9 @@ abstract class Routemaster
     }
 
     /**
-     * @param RoutemasterView $view
+     * @param RoutemasterViewInterface $view
      */
-    public function setView(RoutemasterView $view)
+    public function setView(RoutemasterViewInterface $view)
     {
         $this->view = $view;
     }
@@ -55,6 +55,8 @@ abstract class Routemaster
      */
     public function onWpInit()
     {
+        remove_action('wp_head', 'feed_links', 2);
+        remove_action('wp_head', 'feed_links_extra', 3);
     }
 
     /**

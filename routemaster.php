@@ -6,6 +6,7 @@ Version: 1.1
 */
 
 require_once 'Routemaster.class.php';
+require_once 'RoutemasterViewInterface.php';
 require_once 'RoutemasterView.class.php';
 require_once 'RoutemasterException.class.php';
 

@@ -1,5 +1,5 @@
 <?php
-class RoutemasterView {
+class RoutemasterView implements RoutemasterViewInterface {
 	/** @var $content string The content to be displayed in the layout */
 	public $content;
 	public $logDebug = true;
