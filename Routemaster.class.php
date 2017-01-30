@@ -84,7 +84,12 @@ abstract class Routemaster
 
         //strip base dir and query string from request URI
         $base = dirname($_SERVER['SCRIPT_NAME']);
-        $this->requestUri = preg_replace("|^$base/?|", '', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+
+        $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        $requestUri = preg_replace("|^$base/?|", '', $requestUri);
+        $requestUri = ltrim($requestUri, '/'); //ensure left-leading "/" is stripped.
+
+        $this->requestUri = $requestUri;
         $this->_debug['routes'] = $this->routes();
         $this->_debug['requestUri'] = $this->requestUri;
 
