@@ -5,7 +5,7 @@ namespace Outlandish\Wordpress\Routemaster;
 /**
  * Base Routing/Controller/View class. Extend this in your theme.
  */
-abstract class Routemaster
+abstract class Router
 {
     private static $instance;
     /** @var RoutemasterViewInterface View */
@@ -17,7 +17,10 @@ abstract class Routemaster
 
     protected function __construct()
     {
-        add_filter('init', array($this, 'onWpInit'));
+        add_filter('init', function() {
+            remove_action('wp_head', 'feed_links', 2);
+            remove_action('wp_head', 'feed_links_extra', 3);
+        });
 
         //remove these built-in WP actions
         remove_action('template_redirect', 'wp_old_slug_redirect');
@@ -47,23 +50,23 @@ abstract class Routemaster
         $this->routes = $routes;
     }
 
+    public function addRoute($path, $action)
+    {
+        if (!$this->routes) {
+            $this->routes = [];
+        }
+        $this->routes[$path] = $action;
+    }
+
     protected function initView()
     {
         $this->setView(new RoutemasterView);
     }
 
-    /**
-     * called via wordpress init hook
-     */
-    public function onWpInit()
-    {
-        remove_action('wp_head', 'feed_links', 2);
-        remove_action('wp_head', 'feed_links_extra', 3);
-    }
 
     /**
      * @static
-     * @return Routemaster Singleton instance
+     * @return Router Singleton instance
      */
     public static function getInstance()
     {
@@ -96,11 +99,13 @@ abstract class Routemaster
         $this->_debug['requestUri'] = $this->requestUri;
 
         //find matching route
-        foreach ($this->routes() as $pattern => $action) {
+        $allRoutes = $this->routes();
+        foreach ($allRoutes as $pattern => $action) {
             if (preg_match($pattern, $this->requestUri, $matches)) {
+                array_shift($matches); //remove first element
+
                 $this->_debug['matched_route'] = $pattern;
                 $this->_debug['matched_action'] = $action;
-                array_shift($matches); //remove first element
                 $this->_debug['action_parameters'] = $matches;
 
                 //store initial values for later

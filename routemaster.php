@@ -23,8 +23,6 @@ spl_autoload_register(function($class) {
 //include ooPost compatibility class if oowp plugin is active
 add_action('plugins_loaded', function(){
 	if (class_exists('ooPost')) {
-		require_once 'ooRoutemaster.class.php';
-
         //change preview link to have routing that can be picked up by Routemaster
         add_filter('preview_post_link', function ($link) {
             $qs = parse_url($link, PHP_URL_QUERY);

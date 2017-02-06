@@ -2,12 +2,13 @@
 
 namespace Outlandish\Wordpress\Routemaster\Oowp;
 
-use Outlandish\Wordpress\Routemaster\Routemaster;
+use Outlandish\Wordpress\Routemaster\Router;
+use Outlandish\Wordpress\Routemaster\RoutemasterException;
 
 /**
  * Base Routing/Controller/View class. Extend this in your theme.
  */
-abstract class OowpRouter extends Routemaster {
+abstract class OowpRouter extends Router {
 
 	/** Default routes
 	 * Routes are tested in descending order
@@ -53,9 +54,9 @@ abstract class OowpRouter extends Routemaster {
 
 	protected function routes(){
 		if(!empty($this->routes) && is_array($this->routes)){
-			return array_merge($this->routes, ooRoutemaster::$defaultRoutes);
+			return array_merge($this->routes, OowpRouter::$defaultRoutes);
 		}
-		return ooRoutemaster::$defaultRoutes;
+		return OowpRouter::$defaultRoutes;
 	}
 
 	protected function sitemap() {
