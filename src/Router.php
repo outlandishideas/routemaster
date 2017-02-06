@@ -2,21 +2,27 @@
 
 namespace Outlandish\Wordpress\Routemaster;
 
+use Outlandish\Wordpress\Routemaster\Model\Route;
+use Outlandish\Wordpress\Routemaster\Response\RoutemasterResponse;
+use Outlandish\Wordpress\Routemaster\Response\TemplatedResponse;
+
 /**
  * Base Routing/Controller/View class. Extend this in your theme.
  */
 abstract class Router
 {
     private static $instance;
-    /** @var RoutemasterViewInterface View */
-    protected $view;
-    /** @var array  a key / value array of routes to action methods */
+    /** @var Route[] */
     protected $routes;
-    protected $queryArgs, $layout, $viewPath, $viewName, $requestUri;
+    protected $requestUri;
     protected $_debug;
+	/** @var RouterHelper */
+    protected $helper;
 
-    protected function __construct()
+    protected function __construct($helper = null)
     {
+    	$this->helper = $helper ?: new RouterHelper();
+
         add_filter('init', function() {
             remove_action('wp_head', 'feed_links', 2);
             remove_action('wp_head', 'feed_links_extra', 3);
@@ -25,49 +31,42 @@ abstract class Router
         //remove these built-in WP actions
         remove_action('template_redirect', 'wp_old_slug_redirect');
         remove_action('template_redirect', 'redirect_canonical');
-
-        $this->initView();
     }
 
-    /**
-     * @param RoutemasterViewInterface $view
-     */
-    public function setView(RoutemasterViewInterface $view)
-    {
-        $this->view = $view;
-    }
+	/**
+	 * Initialise the router
+	 */
+	public function setup()
+	{
+		if (is_admin() || !defined('WP_USE_THEMES')) {
+			//don't do any routing for admin pages
+			return;
+		} elseif (!get_option('permalink_structure')) {
+			$url = admin_url('options-permalink.php');
+			die("Permalinks must be <a href='$url'>enabled</a>.");
+		}
 
-    /**
-     * @param string $path  The absolute path to the view folder
-     */
-    public function setViewPath($path)
-    {
-        $this->viewPath = $path;
-    }
+		//do routing once WP is fully loaded
+		add_action('wp_loaded', array($this, 'route'));
+	}
 
     public function setRoutes(array $routes)
     {
         $this->routes = $routes;
     }
 
-    public function addRoute($path, $action)
+    public function addRoute($pattern, $action, $handler = null)
     {
         if (!$this->routes) {
             $this->routes = [];
         }
-        $this->routes[$path] = $action;
+        $this->routes[] = new Route($pattern, $action, $handler ?: $this);
     }
 
-    protected function initView()
-    {
-        $this->setView(new RoutemasterView);
-    }
-
-
-    /**
-     * @static
-     * @return Router Singleton instance
-     */
+	/**
+	 * @static
+	 * @return Router Singleton instance
+	 */
     public static function getInstance()
     {
         if (!isset(self::$instance)) {
@@ -76,7 +75,10 @@ abstract class Router
         return self::$instance;
     }
 
-    protected abstract function routes();
+	/**
+	 * @return Route[]
+	 */
+    protected abstract function getRoutes();
 
     /**
      * Main workhorse method.
@@ -94,88 +96,84 @@ abstract class Router
         $requestUri = preg_replace("|^$base/?|", '', $requestUri);
         $requestUri = ltrim($requestUri, '/'); //ensure left-leading "/" is stripped.
 
+		$allRoutes = $this->getRoutes();
+
         $this->requestUri = $requestUri;
-        $this->_debug['routes'] = $this->routes();
-        $this->_debug['requestUri'] = $this->requestUri;
+        $this->_debug = [
+			'routes' => $allRoutes,
+			'requestUri' => $this->requestUri
+		];
 
         //find matching route
-        $allRoutes = $this->routes();
-        foreach ($allRoutes as $pattern => $action) {
-            if (preg_match($pattern, $this->requestUri, $matches)) {
+		$handled = false;
+        foreach ($allRoutes as $route) {
+            if (preg_match($route->pattern, $this->requestUri, $matches)) {
                 array_shift($matches); //remove first element
 
-                $this->_debug['matched_route'] = $pattern;
-                $this->_debug['matched_action'] = $action;
+                $this->_debug['matched_route'] = $route->pattern;
+                $this->_debug['matched_action'] = $route->actionName;
+                $this->_debug['matched_handler'] = $route->handler;
                 $this->_debug['action_parameters'] = $matches;
 
-                //store initial values for later
-                $initialValues = array();
-                foreach (array('query', 'queryArgs', 'layout', 'view') as $property) {
-                    $initialValues[$property] = isset($this->$property) ? $this->$property : null;
-                }
-
                 try {
-                    $this->preDispatch($action, $matches);
-                    $this->dispatch($action, $matches);
-                    $this->postDispatch($action, $matches);
-
-                    //all done
-                    exit;
+                    $this->dispatch($route->handler, $route->actionName, $matches);
+					$handled = true;
                 } catch (RoutemasterException $e) {
+                    if (!isset($this->_debug['dispatch_failures'])) {
+	                    $this->_debug['dispatch_failures'] = [];
+					}
                     $this->_debug['dispatch_failures'][] = $e;
-                    //route failed so reset and continue routing
-                    $wp_query->init();
 
-                    //reset initial values
-                    foreach ($initialValues as $property => $value) {
-                        $this->$property = $value;
-                    }
+					if ($e->allowFallback) {
+						//route failed so reset and continue routing
+						$wp_query->init();
+					} else {
+						$this->dispatch($this, 'show404');
+						$handled = true;
+						break;
+					}
                 }
             }
         }
-        //no matched route
-        $wp_query->is_404 = true;
-        $this->dispatch('show404');
 
-        //all done
-        exit;
+        if (!$handled) {
+			//no matched route
+			$wp_query->is_404 = true;
+			$this->dispatch($this, 'show404');
+		}
     }
 
-    protected function preDispatch($action, $args = array())
-    { /* do nothing by default */
-    }
-
-    protected function postDispatch($action, $args = array())
-    { /* do nothing by default */
-    }
-
-    public function dispatchVariables()
+	/**
+	 * Runs an action and renders the view.
+	 * @param $handler
+	 * @param string $actionName Action/method to run
+	 * @param array $requestArgs URI parameters
+	 */
+    public function dispatch($handler, $actionName, $requestArgs = array())
     {
-        return array('view' => $this->view);
-    }
+		//call action method
+		try {
+			$response = call_user_func_array(array($handler, $actionName), $requestArgs);
+		} catch (RoutemasterException $ex) {
+			if ($ex->response) {
+				$response = $ex->response;
+			} else {
+				throw $ex;
+			}
+		}
 
-    /**
-     * Runs an action and renders the view.
-     * @param $action string Action/method to run
-     * @param array $args URI parameters
-     */
-    protected function dispatch($action, $args = array())
-    {
-        //call action method
-        call_user_func_array(array($this, $action), $args);
+		//allow plugins to hook in after $wp_query is set but before view is rendered
+		do_action('template_redirect');
 
-        //allow plugins to hook in after $wp_query is set but before view is rendered
-        do_action('template_redirect');
+		if (!$response || !($response instanceof RoutemasterResponse)) {
+			$response = $this->helper->createDefaultResponse($response);
+		}
 
-        //setup default view
-        if (!isset($this->viewName)) {
-            $this->viewName = $action;
-        }
+		if ($response instanceof TemplatedResponse && !$response->viewName) {
+			$response->viewName = $actionName;
+		}
 
-        //render view
-        $viewFile = $this->viewPath . $this->viewName . ".php";
-        $layoutFile = (empty($this->layout) ? null : $this->viewPath . $this->layout . ".php");
-        $this->view->render($viewFile, $layoutFile, $this->dispatchVariables());
+		$response->handleRequest();
     }
 
     /**
@@ -183,38 +181,9 @@ abstract class Router
      */
     protected function show404()
     {
-        header('HTTP/1.0 404 Not Found');
-        if ($this->viewExists('404')) {
-            $this->viewName = '404';
-        } else {
-            die('404 File not found');
-        }
-    }
-
-    /**
-     * Tests if a view file exists in the view path
-     * @param $view string
-     * @return bool
-     */
-    public function viewExists($view)
-    {
-        return file_exists($this->viewPath . $view . '.php');
-    }
-
-    /**
-     * Test config and set up hook for routing
-     */
-    public function setup()
-    {
-        if (is_admin() || !defined('WP_USE_THEMES')) {
-            //don't do any routing for admin pages
-            return;
-        } elseif (!get_option('permalink_structure')) {
-            $url = admin_url('options-permalink.php');
-            die("Permalinks must be <a href='$url'>enabled</a>.");
-        }
-
-        //do routing once WP is fully loaded
-        add_action('wp_loaded', array($this, 'route'));
+    	$response = $this->helper->createDefaultResponse();
+		$response->viewName = '404';
+		$response->headers[] = 'HTTP/1.0 404 Not Found';
+		return $response;
     }
 }

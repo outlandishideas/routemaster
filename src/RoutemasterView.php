@@ -7,9 +7,11 @@ class RoutemasterView implements RoutemasterViewInterface {
 	public $content;
 	public $logDebug = true;
 
-	public function render($viewFile, $layoutFile, $variables = array()) {
-		global $post;
-		$this->post = $post;
+	public function render($viewFile, $layoutFile) {
+		if (!isset($this->post)) {
+			global $post;
+			$this->post = $post;
+		}
 
 		ob_start();
 		if (defined('WP_DEBUG') && WP_DEBUG && $this->logDebug) {

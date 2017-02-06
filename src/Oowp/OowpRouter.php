@@ -2,27 +2,31 @@
 
 namespace Outlandish\Wordpress\Routemaster\Oowp;
 
+use Outlandish\Wordpress\Routemaster\Model\Route;
+use Outlandish\Wordpress\Routemaster\Response\XmlResponse;
 use Outlandish\Wordpress\Routemaster\Router;
-use Outlandish\Wordpress\Routemaster\RoutemasterException;
 
 /**
- * Base Routing/Controller/View class. Extend this in your theme.
+ * An OOWP-aware router
  */
 abstract class OowpRouter extends Router {
 
-	/** Default routes
+	/**
+	 * Default routes
 	 * Routes are tested in descending order
 	 * @var array Map of regular expressions to method names
 	 */
-	static protected $defaultRoutes = array(
+	protected $defaultRoutes = array(
 		'|^sitemap.xml$|i' => 'sitemap', //xml sitemap for google etc
 		'|^robots.txt$|' => 'robots',
 		'|([^/]+)/?$|' => 'defaultPost', //matches blah/blah/slug
 		'|^$|' => 'frontPage' //matches empty string
 	);
+	/** @var OowpRouterHelper */
+	protected $helper;
 
-	protected function __construct() {
-		parent::__construct();
+	protected function __construct($helper = null) {
+		parent::__construct($helper ?: new OowpRouterHelper());
 		add_filter('post_type_link', array($this, 'permalinkHook'), 10, 4);
 	}
 
@@ -41,104 +45,25 @@ abstract class OowpRouter extends Router {
 		if ($post->post_name && $post->ID != $this->permalinkHookPostId) {
 			// prevent infinite recursion by saving the ID before calling permalink() (which may come back here again)
 			$this->permalinkHookPostId = $post->ID;
-			$post_link = ooPost::createPostObject($post)->permalink($leavename);
+			$post_link = \ooPost::createPostObject($post)->permalink($leavename);
 			$this->permalinkHookPostId = null;
 		}
 		return $post_link;
 	}
 
 	/**
-	 * @var array
+	 * Concatenates the routes in $this->routes with the default routes
+	 * @return Route[]
 	 */
-	protected $routes;
-
-	protected function routes(){
+	protected function getRoutes(){
+		$routes = [];
 		if(!empty($this->routes) && is_array($this->routes)){
-			return array_merge($this->routes, OowpRouter::$defaultRoutes);
+			$routes = $this->routes;
 		}
-		return OowpRouter::$defaultRoutes;
-	}
-
-	protected function sitemap() {
-		header('Content-Type: application/xml');
-		$this->layout = false;
-		$this->view->logDebug = false;
-		$this->view->pageItems = new ooWP_Query(array('post_type' => 'any', 'orderby' => 'date'));
-	}
-
-	protected function robots() {
-		do_action('do_robots');
-		exit;
-	}
-
-	protected function show404() {
-		global $post;
-		$post = new ooFakePost(array('post_title' => 'Page not found'));
-		parent::show404();
-	}
-
-	/* Helper methods */
-
-	/**
-	 * Check that the requested URI matches the post permalink and redirect if not
-	 * @param ooPost $post
-	 */
-	protected function redirectCanonical($post) {
-		$scheme = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-		$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-		if ("$scheme://$_SERVER[HTTP_HOST]$path" != $post->permalink()) {
-			wp_redirect($post->permalink());
-			die;
+		foreach ($this->defaultRoutes as $path => $action) {
+			$routes[] = new Route($path, $action, $this);
 		}
-	}
-
-	/**
-	 * Create a new query object and set the global $wp_query
-	 * @param $args
-	 * @return ooWP_Query
-	 */
-	protected function query($args) {
-		global $wp_query, $wp_the_query;
-		$wp_the_query = $wp_query = new ooWP_Query($args);
-		return $wp_query;
-	}
-
-	/**
-	 * Select a single post, set globals and throw 404 exception if nothing matches
-	 * @param $args
-	 * @param bool $redirectCanonical true if should redirect canonically after fetching the post
-	 * @throws RoutemasterException
-	 * @return ooPost
-	 */
-	protected function querySingle($args, $redirectCanonical = false) {
-		global $post;
-
-        if (isset($_GET['preview']) && $_GET['preview'] == 'true') {
-            //currently published posts just need this to show the latest autosave instead
-            $args['preview'] = 'true';
-
-            //for unpublished posts, override query entirely
-            if (isset($_GET['p']) || isset($_GET['page_id'])) {
-                $args = array_intersect_key($_GET, array_flip(array('preview', 'p', 'page_id')));
-            }
-
-            //for unpublished posts and posts returned to draft, allow draft status
-            $args['post_status'] = array('draft', 'publish', 'auto-draft');
-
-            $redirectCanonical = false;
-        }
-
-		$query = $this->query($args);
-		//no matched posts so 404
-		if (!count($query)) throw new RoutemasterException('Not found', 404);
-
-		$post = $query[0];
-
-		if ($redirectCanonical) {
-			$this->redirectCanonical($post);
-		}
-
-		return $post;
+		return $routes;
 	}
 
 	/***********************************************
@@ -147,20 +72,56 @@ abstract class OowpRouter extends Router {
 	 *
 	 ***********************************************/
 
+	/**
+	 * @route /sitemap.xml
+	 */
+	protected function sitemap() {
+		return new XmlResponse([
+			'pageItems' => new \ooWP_Query(array('post_type' => 'any', 'orderby' => 'date'))
+		]);
+	}
+
+	/**
+	 * @route /robots.txt
+	 */
+	protected function robots() {
+		do_action('do_robots');
+		exit;
+	}
+
+	/**
+	 * @route /any/unknown/route
+	 */
+	protected function show404() {
+		global $post;
+		$post = new \ooFakePost(array('post_title' => 'Page not found'));
+		$response = parent::show404();
+		$response->outputArgs['theme'] = \ooTheme::getInstance();
+		return $response;
+	}
+
+	/**
+	 * @route /default/route/when/no/other/match
+	 */
 	protected function defaultPost($slug) {
-		$post = $this->querySingle(array('name' => $slug, 'post_type' => 'any'), true);
+		$post = $this->helper->querySingle(array('name' => $slug, 'post_type' => 'any'), true);
 
-		if ($post->post_type == 'page') {
-			if ($this->viewExists('page-' . $post->post_name)) {
-				$this->viewName = 'page-' . $post->post_name;
-			}
+		$response = $this->helper->createDefaultResponse([
+			'post' => $post
+		]);
+		if ($post->post_type == 'page' && $response->viewExists('page-' . $post->post_name)) {
+			$response->viewName = 'page-' . $post->post_name;
 		}
+		return $response;
 	}
 
+	/**
+	 * @route /
+	 */
 	protected function frontPage() {
-		$this->querySingle(array('page_id' => get_option('page_on_front')), true);
+		return [
+			'post' => $this->helper->querySingle(array('page_id' => get_option('page_on_front')), true)
+		];
 	}
-
-
 
 }
