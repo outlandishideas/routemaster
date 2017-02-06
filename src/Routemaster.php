@@ -1,5 +1,7 @@
 <?php
 
+namespace Outlandish\Wordpress\Routemaster;
+
 /**
  * Base Routing/Controller/View class. Extend this in your theme.
  */

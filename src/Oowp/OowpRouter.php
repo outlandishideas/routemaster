@@ -1,9 +1,13 @@
 <?php
 
+namespace Outlandish\Wordpress\Routemaster\Oowp;
+
+use Outlandish\Wordpress\Routemaster\Routemaster;
+
 /**
  * Base Routing/Controller/View class. Extend this in your theme.
  */
-abstract class ooRoutemaster extends Routemaster {
+abstract class OowpRouter extends Routemaster {
 
 	/** Default routes
 	 * Routes are tested in descending order

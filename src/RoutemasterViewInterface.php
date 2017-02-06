@@ -1,5 +1,7 @@
 <?php
 
+namespace Outlandish\Wordpress\Routemaster;
+
 interface RoutemasterViewInterface
 {
     /**

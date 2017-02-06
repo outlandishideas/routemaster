@@ -1,4 +1,7 @@
 <?php
+
+namespace Outlandish\Wordpress\Routemaster;
+
 class RoutemasterView implements RoutemasterViewInterface {
 	/** @var $content string The content to be displayed in the layout */
 	public $content;
@@ -14,9 +17,13 @@ class RoutemasterView implements RoutemasterViewInterface {
 
 
 		ob_start();
-		if (WP_DEBUG && $this->logDebug) echo "\n\n<!-- start $viewFile -->\n\n";
+		if (defined('WP_DEBUG') && WP_DEBUG && $this->logDebug) {
+		    echo "\n\n<!-- start $viewFile -->\n\n";
+        }
 		include $viewFile;
-		if (WP_DEBUG && $this->logDebug) echo "\n\n<!-- end $viewFile -->\n\n";
+		if (defined('WP_DEBUG') && WP_DEBUG && $this->logDebug) {
+		    echo "\n\n<!-- end $viewFile -->\n\n";
+        }
 		$this->content = ob_get_clean();
 
 		if ($layoutFile) {
