@@ -2,7 +2,7 @@
 
 namespace Outlandish\Wordpress\Routemaster\Oowp;
 
-use Outlandish\Wordpress\Routemaster\RoutemasterException;
+use Outlandish\Wordpress\Routemaster\Exception\RoutemasterException;
 use Outlandish\Wordpress\Routemaster\RouterHelper;
 
 /**
