@@ -105,36 +105,47 @@ abstract class Router
 			'requestUri' => $this->requestUri
 		];
 
-        //find matching route
+        //find matching route(s)
+		$matchingRoutes = [];
+		foreach ($allRoutes as $route) {
+			if (preg_match($route->pattern, $this->requestUri, $matches)) {
+				array_shift($matches); //remove first element
+				$matchingRoutes[] = [
+					'route' => $route,
+					'matches' => $matches
+				];
+			}
+		}
+
 		$handled = false;
-        foreach ($allRoutes as $route) {
-            if (preg_match($route->pattern, $this->requestUri, $matches)) {
-                array_shift($matches); //remove first element
+        foreach ($matchingRoutes as $match) {
+        	/** @var Route $route */
+        	$route = $match['route'];
+        	$matches = $match['matches'];
 
-                $this->_debug['matched_route'] = $route->pattern;
-                $this->_debug['matched_action'] = $route->actionName;
-                $this->_debug['matched_handler'] = $route->handler;
-                $this->_debug['action_parameters'] = $matches;
+			$this->_debug['matched_route'] = $route->pattern;
+			$this->_debug['matched_action'] = $route->actionName;
+			$this->_debug['matched_handler'] = $route->handler;
+			$this->_debug['action_parameters'] = $matches;
 
-                try {
-                    $this->dispatch($route->handler, $route->actionName, $matches);
+			try {
+				$this->dispatch($route->handler, $route->actionName, $matches);
+				$handled = true;
+			} catch (RoutemasterException $e) {
+				if (!isset($this->_debug['dispatch_failures'])) {
+					$this->_debug['dispatch_failures'] = [];
+				}
+				$this->_debug['dispatch_failures'][] = $e;
+
+				if ($e->allowFallback) {
+					//route failed so reset and continue routing
+					$wp_query->init();
+				} else {
+					$this->dispatch($this, 'show404');
 					$handled = true;
-                } catch (RoutemasterException $e) {
-                    if (!isset($this->_debug['dispatch_failures'])) {
-	                    $this->_debug['dispatch_failures'] = [];
-					}
-                    $this->_debug['dispatch_failures'][] = $e;
-
-					if ($e->allowFallback) {
-						//route failed so reset and continue routing
-						$wp_query->init();
-					} else {
-						$this->dispatch($this, 'show404');
-						$handled = true;
-						break;
-					}
-                }
-            }
+					break;
+				}
+			}
         }
 
         if (!$handled) {
