@@ -1,6 +1,6 @@
 <?php
 
-namespace Outlandish\Wordpress\Routemaster;
+namespace Outlandish\Wordpress\Routemaster\Exception;
 
 use Outlandish\Wordpress\Routemaster\Response\RoutemasterResponse;
 
