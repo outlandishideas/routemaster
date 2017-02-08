@@ -13,7 +13,6 @@ spl_autoload_register(function($class) {
         $file = str_replace(ROUTEMASTER_NAMESPACE, '', $class);
         $file = str_replace('\\', DIRECTORY_SEPARATOR, $file);
         $path = __DIR__ . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $file . '.php';
-        echo $path . EOL;
         if (file_exists($path)) {
             include($path);
             return true;
