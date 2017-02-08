@@ -2,7 +2,7 @@
 /*
 Plugin Name: Routemaster
 Description: An implementation of the MVC pattern where WordPress provides the model.
-Version: 1.1
+Version: 2.0.1
 */
 
 define('ROUTEMASTER_NAMESPACE', 'Outlandish\\Wordpress\\Routemaster\\');
@@ -11,7 +11,9 @@ define('ROUTEMASTER_NAMESPACE', 'Outlandish\\Wordpress\\Routemaster\\');
 spl_autoload_register(function($class) {
     if (strpos($class, ROUTEMASTER_NAMESPACE) === 0) {
         $file = str_replace(ROUTEMASTER_NAMESPACE, '', $class);
-        $path = __DIR__ . '\\src\\' . $file . '.php';
+        $file = str_replace('\\', DIRECTORY_SEPARATOR, $file);
+        $path = __DIR__ . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $file . '.php';
+        echo $path . EOL;
         if (file_exists($path)) {
             include($path);
             return true;
