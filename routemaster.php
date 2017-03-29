@@ -2,7 +2,7 @@
 /*
 Plugin Name: Routemaster
 Description: An implementation of the MVC pattern where WordPress provides the model.
-Version: 2.0.1
+Version: 2.0.2
 */
 
 define('ROUTEMASTER_NAMESPACE', 'Outlandish\\Wordpress\\Routemaster\\');
