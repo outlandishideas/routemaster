@@ -10,6 +10,9 @@ abstract class Routemaster
     protected $view;
     /** @var array  a key / value array of routes to action methods */
     protected $routes;
+
+    /** @var ooTheme The theme object containing a $theme->data array property required for any site-wide data such as the layout **/
+    protected $theme;
     protected $queryArgs, $layout, $viewPath, $viewName, $requestUri;
     protected $_debug;
 
@@ -47,6 +50,7 @@ abstract class Routemaster
 
     protected function initView()
     {
+        global $post;
         $this->setView(new RoutemasterView);
     }
 
@@ -160,15 +164,10 @@ abstract class Routemaster
         //allow plugins to hook in after $wp_query is set but before view is rendered
         do_action('template_redirect');
 
-        //setup default view
-        if (!isset($this->viewName)) {
-            $this->viewName = $action;
-        }
-
+        $this->view->theme = $this->theme;
         //render view
-        $viewFile = $this->viewPath . $this->viewName . ".php";
-        $layoutFile = (empty($this->layout) ? null : $this->viewPath . $this->layout . ".php");
-        $this->view->render($viewFile, $layoutFile, $this->dispatchVariables());
+        $this->view->layoutFile = empty($this->layout) ? null : $this->viewPath . $this->layout . ".php";
+        $this->view->render($this->dispatchVariables());
     }
 
     /**
