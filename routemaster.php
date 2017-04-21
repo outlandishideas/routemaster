@@ -2,24 +2,8 @@
 /*
 Plugin Name: Routemaster
 Description: An implementation of the MVC pattern where WordPress provides the model.
-Version: 2.0.2
+Version: 2.0.3
 */
-
-define('ROUTEMASTER_NAMESPACE', 'Outlandish\\Wordpress\\Routemaster\\');
-
-// add autoloader for routemaster classes
-spl_autoload_register(function($class) {
-    if (strpos($class, ROUTEMASTER_NAMESPACE) === 0) {
-        $file = str_replace(ROUTEMASTER_NAMESPACE, '', $class);
-        $file = str_replace('\\', DIRECTORY_SEPARATOR, $file);
-        $path = __DIR__ . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $file . '.php';
-        if (file_exists($path)) {
-            include($path);
-            return true;
-        }
-    }
-    return false;
-});
 
 //include ooPost compatibility class if oowp plugin is active
 add_action('plugins_loaded', function(){
