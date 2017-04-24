@@ -24,10 +24,8 @@ abstract class Router
     {
     	$this->helper = $helper ?: new RouterHelper();
 
-        add_filter('init', function() {
-            remove_action('wp_head', 'feed_links', 2);
-            remove_action('wp_head', 'feed_links_extra', 3);
-        });
+		remove_action('wp_head', 'feed_links', 2);
+		remove_action('wp_head', 'feed_links_extra', 3);
 
         //remove these built-in WP actions
         remove_action('template_redirect', 'wp_old_slug_redirect');

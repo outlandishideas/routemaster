@@ -2,6 +2,8 @@
 
 namespace Outlandish\Wordpress\Routemaster\Oowp;
 
+use Outlandish\Wordpress\Oowp\OowpQuery;
+use Outlandish\Wordpress\Oowp\PostTypes\WordpressPost;
 use Outlandish\Wordpress\Routemaster\Exception\RoutemasterException;
 use Outlandish\Wordpress\Routemaster\RouterHelper;
 
@@ -12,7 +14,7 @@ class OowpRouterHelper extends RouterHelper
 {
 	/**
 	 * Check that the requested URI matches the post permalink and redirect if not
-	 * @param \ooPost $post
+	 * @param WordpressPost $post
 	 */
 	protected function redirectCanonical($post) {
 		$scheme = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
@@ -26,11 +28,11 @@ class OowpRouterHelper extends RouterHelper
 	/**
 	 * Create a new query object and set the global $wp_query
 	 * @param $args
-	 * @return \ooWP_Query
+	 * @return OowpQuery
 	 */
 	protected function query($args) {
 		global $wp_query, $wp_the_query;
-		$wp_the_query = $wp_query = new \ooWP_Query($args);
+		$wp_the_query = $wp_query = new OowpQuery($args);
 		return $wp_query;
 	}
 
@@ -39,7 +41,7 @@ class OowpRouterHelper extends RouterHelper
 	 * @param $args
 	 * @param bool $redirectCanonical true if should redirect canonically after fetching the post
 	 * @throws RoutemasterException
-	 * @return \ooPost
+	 * @return WordpressPost
 	 */
 	public function querySingle($args, $redirectCanonical = false) {
 		global $post;

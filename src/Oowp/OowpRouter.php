@@ -2,6 +2,10 @@
 
 namespace Outlandish\Wordpress\Routemaster\Oowp;
 
+use Outlandish\AudienceFinder\afTheme;
+use Outlandish\Wordpress\Oowp\OowpQuery;
+use Outlandish\Wordpress\Oowp\PostTypes\FakePost;
+use Outlandish\Wordpress\Oowp\PostTypes\WordpressPost;
 use Outlandish\Wordpress\Routemaster\Model\Route;
 use Outlandish\Wordpress\Routemaster\Response\XmlResponse;
 use Outlandish\Wordpress\Routemaster\Router;
@@ -27,7 +31,9 @@ abstract class OowpRouter extends Router {
 
 	protected function __construct($helper = null) {
 		parent::__construct($helper ?: new OowpRouterHelper());
-		add_filter('post_type_link', array($this, 'permalinkHook'), 10, 4);
+		add_filter('post_type_link', function($postLink, $post, $leavename, $sample) {
+			return $this->permalinkHook($postLink, $post);
+		}, 10, 4);
 	}
 
 	/** @var null Used in permalinkHook function, to prevent infinite recursion */
@@ -37,15 +43,13 @@ abstract class OowpRouter extends Router {
 	 * Overwrites the post_link with the post's permalink()
 	 * @param $post_link
 	 * @param $post
-	 * @param $leavename
-	 * @param $sample
 	 * @return string|void
 	 */
-	public function permalinkHook($post_link, $post, $leavename, $sample) {
+	public function permalinkHook($post_link, $post) {
 		if ($post->post_name && $post->ID != $this->permalinkHookPostId) {
 			// prevent infinite recursion by saving the ID before calling permalink() (which may come back here again)
 			$this->permalinkHookPostId = $post->ID;
-			$post_link = \ooPost::createPostObject($post)->permalink($leavename);
+			$post_link = WordpressPost::createWordpressPost($post)->permalink();
 			$this->permalinkHookPostId = null;
 		}
 		return $post_link;
@@ -77,7 +81,7 @@ abstract class OowpRouter extends Router {
 	 */
 	protected function sitemap() {
 		return new XmlResponse([
-			'pageItems' => new \ooWP_Query(array('post_type' => 'any', 'orderby' => 'date'))
+			'pageItems' => new OowpQuery(array('post_type' => 'any', 'orderby' => 'date'))
 		]);
 	}
 
@@ -94,9 +98,9 @@ abstract class OowpRouter extends Router {
 	 */
 	protected function show404() {
 		global $post;
-		$post = new \ooFakePost(array('post_title' => 'Page not found'));
+		$post = new FakePost(array('post_title' => 'Page not found'));
 		$response = parent::show404();
-		$response->outputArgs['theme'] = \ooTheme::getInstance();
+		$response->outputArgs['theme'] = afTheme::getInstance();
 		return $response;
 	}
 
