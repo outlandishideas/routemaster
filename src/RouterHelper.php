@@ -16,6 +16,11 @@ class RouterHelper
         return new HtmlResponse($args);
     }
 
+    public function createNotFoundResponse()
+	{
+		return new HtmlResponse();
+	}
+
     public function getRequestMethod()
     {
         return strtoupper($_SERVER['REQUEST_METHOD']);

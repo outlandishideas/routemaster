@@ -4,7 +4,11 @@ namespace Outlandish\Wordpress\Routemaster\Oowp;
 
 use Outlandish\Wordpress\Oowp\OowpQuery;
 use Outlandish\Wordpress\Oowp\PostTypes\WordpressPost;
+use Outlandish\Wordpress\Oowp\Views\OowpView;
 use Outlandish\Wordpress\Routemaster\Exception\RoutemasterException;
+use Outlandish\Wordpress\Routemaster\Oowp\Response\ContainerViewResponse;
+use Outlandish\Wordpress\Routemaster\Oowp\View\NotFoundView;
+use Outlandish\Wordpress\Routemaster\Response\HtmlResponse;
 use Outlandish\Wordpress\Routemaster\RouterHelper;
 
 /**
@@ -12,6 +16,25 @@ use Outlandish\Wordpress\Routemaster\RouterHelper;
  */
 class OowpRouterHelper extends RouterHelper
 {
+	/**
+	 * Routes use this when creating a response
+	 * @param array|object $args
+	 * @return ContainerViewResponse|HtmlResponse
+	 */
+	public function createDefaultResponse($args = [])
+	{
+		if ($args instanceof OowpView) {
+			return new ContainerViewResponse($args);
+		} else {
+			return parent::createDefaultResponse($args);
+		}
+	}
+
+	public function createNotFoundResponse()
+	{
+		return new ContainerViewResponse(new NotFoundView());
+	}
+
 	/**
 	 * Check that the requested URI matches the post permalink and redirect if not
 	 * @param WordpressPost $post
@@ -38,7 +61,7 @@ class OowpRouterHelper extends RouterHelper
 
 	/**
 	 * Select a single post, set globals and throw 404 exception if nothing matches
-	 * @param $args
+	 * @param array $args
 	 * @param bool $redirectCanonical true if should redirect canonically after fetching the post
 	 * @throws RoutemasterException
 	 * @return WordpressPost

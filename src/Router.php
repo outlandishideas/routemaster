@@ -4,20 +4,25 @@ namespace Outlandish\Wordpress\Routemaster;
 
 use Outlandish\Wordpress\Routemaster\Exception\RoutemasterException;
 use Outlandish\Wordpress\Routemaster\Model\Route;
+use Outlandish\Wordpress\Routemaster\Response\RobotsResponse;
 use Outlandish\Wordpress\Routemaster\Response\RoutemasterResponse;
 use Outlandish\Wordpress\Routemaster\Response\TemplatedResponse;
 
 /**
  * Base Routing/Controller/View class. Extend this in your theme.
  */
+
+/** @property RouterHelper $helper */
 abstract class Router
 {
     private static $instance;
+
     /** @var Route[] */
     protected $routes;
+
     protected $requestUri;
     protected $_debug;
-	/** @var RouterHelper */
+
     protected $helper;
 
     protected function __construct($helper = null)
@@ -46,7 +51,9 @@ abstract class Router
 		}
 
 		//do routing once WP is fully loaded
-		add_action('wp_loaded', array($this, 'route'));
+		add_action('wp_loaded', function() {
+			$this->route();
+		});
 	}
 
     public function setRoutes(array $routes)
@@ -75,11 +82,33 @@ abstract class Router
     }
 
 	/**
+	 * Gets default routes
+	 * Routes are tested in descending order
+	 * @return array Map of regular expressions to method names
+	 */
+	protected function getDefaultRoutePatterns()
+	{
+		return [
+			'|^robots.txt$|' => 'robots',
+		];
+	}
+
+	/**
+	 * Concatenates the routes in $this->routes with any default route patterns
 	 * @return Route[]
 	 */
-    protected abstract function getRoutes();
+	protected function buildRoutes(){
+		$routes = [];
+		if(!empty($this->routes) && is_array($this->routes)){
+			$routes = $this->routes;
+		}
+		foreach ($this->getDefaultRoutePatterns() as $path => $action) {
+			$routes[] = new Route($path, $action, $this);
+		}
+		return $routes;
+	}
 
-    /**
+	/**
      * Main workhorse method.
      * Attempts to match URI against routes and dispatches routing methods.
      * Falls back to 404 if none match.
@@ -95,7 +124,7 @@ abstract class Router
         $requestUri = preg_replace("|^$base/?|", '', $requestUri);
         $requestUri = ltrim($requestUri, '/'); //ensure left-leading "/" is stripped.
 
-		$allRoutes = $this->getRoutes();
+		$allRoutes = $this->buildRoutes();
 
         $this->requestUri = $requestUri;
         $this->_debug = [
@@ -179,21 +208,26 @@ abstract class Router
 			$response = $this->helper->createDefaultResponse($response);
 		}
 
-		if ($response instanceof TemplatedResponse && !$response->viewName) {
-			$response->viewName = $actionName;
-		}
-
+		$response->setRouteName($actionName);
 		$response->handleRequest();
     }
 
-    /**
-     * Default 404 handler
-     */
+	/**
+	 * Default 404 handler
+	 */
     protected function show404()
     {
-    	$response = $this->helper->createDefaultResponse();
-		$response->viewName = '404';
+		$response = $this->helper->createNotFoundResponse();
+		$response->setRouteName('404');
 		$response->headers[] = 'HTTP/1.0 404 Not Found';
 		return $response;
     }
+
+	/**
+	 * @route /robots.txt
+	 */
+	protected function robots() {
+		return new RobotsResponse();
+	}
+
 }

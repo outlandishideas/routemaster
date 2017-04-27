@@ -2,32 +2,18 @@
 
 namespace Outlandish\Wordpress\Routemaster\Oowp;
 
-use Outlandish\AudienceFinder\afTheme;
 use Outlandish\Wordpress\Oowp\OowpQuery;
 use Outlandish\Wordpress\Oowp\PostTypes\FakePost;
 use Outlandish\Wordpress\Oowp\PostTypes\WordpressPost;
-use Outlandish\Wordpress\Routemaster\Model\Route;
+use Outlandish\Wordpress\Routemaster\Response\TemplatedResponse;
 use Outlandish\Wordpress\Routemaster\Response\XmlResponse;
 use Outlandish\Wordpress\Routemaster\Router;
 
 /**
  * An OOWP-aware router
  */
+/** @property OowpRouterHelper $helper */
 abstract class OowpRouter extends Router {
-
-	/**
-	 * Default routes
-	 * Routes are tested in descending order
-	 * @var array Map of regular expressions to method names
-	 */
-	protected $defaultRoutes = array(
-		'|^sitemap.xml$|i' => 'sitemap', //xml sitemap for google etc
-		'|^robots.txt$|' => 'robots',
-		'|([^/]+)/?$|' => 'defaultPost', //matches blah/blah/slug
-		'|^$|' => 'frontPage' //matches empty string
-	);
-	/** @var OowpRouterHelper */
-	protected $helper;
 
 	protected function __construct($helper = null) {
 		parent::__construct($helper ?: new OowpRouterHelper());
@@ -35,6 +21,16 @@ abstract class OowpRouter extends Router {
 			return $this->permalinkHook($postLink, $post);
 		}, 10, 4);
 	}
+
+	protected function getDefaultRoutePatterns()
+	{
+		return array_merge(parent::getDefaultRoutePatterns(), [
+			'|^sitemap.xml$|i' => 'sitemap', //xml sitemap for google etc
+			'|([^/]+)/?$|' => 'defaultPost', //matches blah/blah/slug
+			'|^$|' => 'frontPage' //matches empty string
+		]);
+	}
+
 
 	/** @var null Used in permalinkHook function, to prevent infinite recursion */
 	protected $permalinkHookPostId = null;
@@ -55,21 +51,6 @@ abstract class OowpRouter extends Router {
 		return $post_link;
 	}
 
-	/**
-	 * Concatenates the routes in $this->routes with the default routes
-	 * @return Route[]
-	 */
-	protected function getRoutes(){
-		$routes = [];
-		if(!empty($this->routes) && is_array($this->routes)){
-			$routes = $this->routes;
-		}
-		foreach ($this->defaultRoutes as $path => $action) {
-			$routes[] = new Route($path, $action, $this);
-		}
-		return $routes;
-	}
-
 	/***********************************************
 	 *
 	 *  Methods for default routes (defined above)
@@ -86,22 +67,12 @@ abstract class OowpRouter extends Router {
 	}
 
 	/**
-	 * @route /robots.txt
-	 */
-	protected function robots() {
-		do_action('do_robots');
-		exit;
-	}
-
-	/**
 	 * @route /any/unknown/route
 	 */
 	protected function show404() {
 		global $post;
 		$post = new FakePost(array('post_title' => 'Page not found'));
-		$response = parent::show404();
-		$response->outputArgs['theme'] = afTheme::getInstance();
-		return $response;
+		return parent::show404();
 	}
 
 	/**
@@ -113,7 +84,7 @@ abstract class OowpRouter extends Router {
 		$response = $this->helper->createDefaultResponse([
 			'post' => $post
 		]);
-		if ($post->post_type == 'page' && $response->viewExists('page-' . $post->post_name)) {
+		if ($response instanceof TemplatedResponse && $post->post_type == 'page' && $response->viewExists('page-' . $post->post_name)) {
 			$response->viewName = 'page-' . $post->post_name;
 		}
 		return $response;

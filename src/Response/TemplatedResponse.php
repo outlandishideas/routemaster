@@ -18,12 +18,25 @@ abstract class TemplatedResponse extends RoutemasterResponse
 			die('View file not found: ' . $this->viewName);
 		}
 		$view = $this->createView();
-		$view->view = $view;
+		$view->view = $view; // let the view reference itself
 		foreach ($this->outputArgs as $name=>$value) {
 			$view->$name = $value;
 		}
 		$view->render($viewFile, self::viewFile($this->layout));
 	}
+
+	/**
+	 * Set the view name to be the route name, if not already set
+	 * @param string $routeName
+	 */
+	public function setRouteName($routeName)
+	{
+		parent::setRouteName($routeName);
+		if (!$this->viewName) {
+			$this->viewName = $routeName;
+		}
+	}
+
 
 	/**
 	 * @return RoutemasterView

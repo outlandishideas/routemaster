@@ -6,10 +6,20 @@ abstract class RoutemasterResponse
 {
 	public $headers = [];
 	public $outputArgs = [];
+	public $routeName = null;
 
 	public function __construct($outputArgs = [])
 	{
 		$this->outputArgs = $outputArgs;
+	}
+
+	/**
+	 * Sets the name of the route that generated this response
+	 * @param string $routeName
+	 */
+	public function setRouteName($routeName)
+	{
+		$this->routeName = $routeName;
 	}
 
 	final function handleRequest()
