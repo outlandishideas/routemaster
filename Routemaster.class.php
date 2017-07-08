@@ -199,7 +199,14 @@ abstract class Routemaster
      */
     public function setup()
     {
-        if (is_admin() || !defined('WP_USE_THEMES')) {
+        // We don't want to override the wp-json API
+        // At this point (when the init action is called) the global REST_REQUEST variable has not been set yet,
+        // so we need to check the URL to see if it is a JSON api request
+        $requestUrl = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+        $path = str_replace(WP_HOME, "", $requestUrl);
+        $isJsonRequest =  strpos( $path, "/wp-json") === 0 ;
+
+        if (is_admin() || !defined('WP_USE_THEMES') || $isJsonRequest) {
             //don't do any routing for admin pages
             return;
         } elseif (!get_option('permalink_structure')) {
