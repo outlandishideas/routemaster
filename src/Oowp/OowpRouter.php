@@ -18,7 +18,7 @@ abstract class OowpRouter extends Router {
 	protected function __construct($helper = null) {
 		parent::__construct($helper ?: new OowpRouterHelper());
 		add_filter('post_type_link', function($postLink, $post, $leavename, $sample) {
-			return $this->permalinkHook($postLink, $post);
+			return $this->permalinkHook($postLink, $post, $leavename);
 		}, 10, 4);
 	}
 
@@ -41,11 +41,11 @@ abstract class OowpRouter extends Router {
 	 * @param $post
 	 * @return string|void
 	 */
-	public function permalinkHook($post_link, $post) {
+	public function permalinkHook($post_link, $post, $leaveName) {
 		if ($post->post_name && $post->ID != $this->permalinkHookPostId) {
 			// prevent infinite recursion by saving the ID before calling permalink() (which may come back here again)
 			$this->permalinkHookPostId = $post->ID;
-			$post_link = WordpressPost::createWordpressPost($post)->permalink();
+			$post_link = WordpressPost::createWordpressPost($post)->permalink($leaveName);
 			$this->permalinkHookPostId = null;
 		}
 		return $post_link;

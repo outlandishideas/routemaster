@@ -42,8 +42,9 @@ class OowpRouterHelper extends RouterHelper
 	protected function redirectCanonical($post) {
 		$scheme = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
 		$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-		if ("$scheme://$_SERVER[HTTP_HOST]$path" != $post->permalink()) {
-			wp_redirect($post->permalink());
+		$permalink = $post->permalink();
+		if ("$scheme://$_SERVER[HTTP_HOST]$path" != $permalink) {
+			wp_redirect($permalink);
 			die;
 		}
 	}

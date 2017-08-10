@@ -4,7 +4,7 @@
   "description": "A routing plugin for WordPress",
   "minimum-stability": "stable",
   "license": "GPL-3.0",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "autoload": {
     "psr-4": {
       "Outlandish\\Wordpress\\Routemaster\\": "src/"
