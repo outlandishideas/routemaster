@@ -29,3 +29,5 @@ add_action('plugins_loaded', function(){
 	}
 });
 
+// set the path for templated response template files
+\Outlandish\Wordpress\Routemaster\Response\TemplatedResponse::$viewPath = implode(DIRECTORY_SEPARATOR, [__DIR__, 'templates', '']);
