@@ -2,18 +2,24 @@
 
 namespace Outlandish\Wordpress\Routemaster\Response;
 
-class XmlResponse extends TemplatedResponse
+use Outlandish\Wordpress\Routemaster\View\Renderable;
+
+class XmlResponse extends RoutemasterResponse
 {
-	public function __construct(array $outputArgs)
+    protected $renderable;
+
+    /**
+     * @param Renderable $renderable
+     */
+	public function __construct($renderable)
 	{
-		parent::__construct($outputArgs);
+		parent::__construct([]);
+		$this->renderable = $renderable;
 		$this->headers[] = 'Content-Type: application/xml';
 	}
 
-	protected function createView()
-	{
-		$view = parent::createView();
-		$view->logDebug = false;
-		return $view;
-	}
+    protected function render()
+    {
+        $this->renderable->render();
+    }
 }

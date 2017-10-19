@@ -2,16 +2,15 @@
 
 namespace Outlandish\Wordpress\Routemaster\Oowp\View;
 
-use Outlandish\Wordpress\Oowp\Views\OowpView;
 use Outlandish\Wordpress\Oowp\Views\PostView;
 
 class ContainerView extends PostView
 {
-	/** @var OowpView */
+	/** @var RoutemasterOowpView */
 	public $content;
 
 	/**
-	 * @param OowpView $content
+	 * @param RoutemasterOowpView $content
 	 */
 	public function __construct($content)
 	{

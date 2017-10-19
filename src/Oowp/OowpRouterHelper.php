@@ -4,10 +4,10 @@ namespace Outlandish\Wordpress\Routemaster\Oowp;
 
 use Outlandish\Wordpress\Oowp\OowpQuery;
 use Outlandish\Wordpress\Oowp\PostTypes\WordpressPost;
-use Outlandish\Wordpress\Oowp\Views\OowpView;
 use Outlandish\Wordpress\Routemaster\Exception\RoutemasterException;
 use Outlandish\Wordpress\Routemaster\Oowp\Response\ContainerViewResponse;
 use Outlandish\Wordpress\Routemaster\Oowp\View\NotFoundView;
+use Outlandish\Wordpress\Routemaster\Oowp\View\RoutemasterOowpView;
 use Outlandish\Wordpress\Routemaster\Response\HtmlResponse;
 use Outlandish\Wordpress\Routemaster\RouterHelper;
 
@@ -23,7 +23,7 @@ class OowpRouterHelper extends RouterHelper
 	 */
 	public function createDefaultResponse($args = [])
 	{
-		if ($args instanceof OowpView) {
+		if ($args instanceof RoutemasterOowpView) {
 			return new ContainerViewResponse($args);
 		} else {
 			return parent::createDefaultResponse($args);

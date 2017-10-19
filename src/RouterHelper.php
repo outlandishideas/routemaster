@@ -3,22 +3,27 @@
 namespace Outlandish\Wordpress\Routemaster;
 
 use Outlandish\Wordpress\Routemaster\Response\HtmlResponse;
+use Outlandish\Wordpress\Routemaster\View\HtmlPage;
+use Outlandish\Wordpress\Routemaster\View\Renderable;
 
 class RouterHelper
 {
     /**
-     * Routes use this when creating a response
+     * Routes use this when creating a response, if a routing function doesn't explicitly return a response
      * @param array|object $args
      * @return HtmlResponse
      */
     public function createDefaultResponse($args = [])
     {
+        if (!($args instanceof Renderable)) {
+            $args = new HtmlPage(the_title(), the_content());
+        }
         return new HtmlResponse($args);
     }
 
     public function createNotFoundResponse()
 	{
-		return new HtmlResponse();
+		return new HtmlResponse(new HtmlPage('Not found', ''));
 	}
 
     public function getRequestMethod()

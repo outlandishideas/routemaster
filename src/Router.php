@@ -6,7 +6,6 @@ use Outlandish\Wordpress\Routemaster\Exception\RoutemasterException;
 use Outlandish\Wordpress\Routemaster\Model\Route;
 use Outlandish\Wordpress\Routemaster\Response\RobotsResponse;
 use Outlandish\Wordpress\Routemaster\Response\RoutemasterResponse;
-use Outlandish\Wordpress\Routemaster\Response\TemplatedResponse;
 
 /**
  * Base Routing/Controller/View class. Extend this in your theme.
@@ -233,5 +232,4 @@ abstract class Router
 	protected function robots() {
 		return new RobotsResponse();
 	}
-
 }

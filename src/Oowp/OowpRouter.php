@@ -5,7 +5,7 @@ namespace Outlandish\Wordpress\Routemaster\Oowp;
 use Outlandish\Wordpress\Oowp\OowpQuery;
 use Outlandish\Wordpress\Oowp\PostTypes\FakePost;
 use Outlandish\Wordpress\Oowp\PostTypes\WordpressPost;
-use Outlandish\Wordpress\Routemaster\Response\TemplatedResponse;
+use Outlandish\Wordpress\Routemaster\Oowp\View\SitemapView;
 use Outlandish\Wordpress\Routemaster\Response\XmlResponse;
 use Outlandish\Wordpress\Routemaster\Router;
 
@@ -61,9 +61,8 @@ abstract class OowpRouter extends Router {
 	 * @route /sitemap.xml
 	 */
 	protected function sitemap() {
-		return new XmlResponse([
-			'pageItems' => new OowpQuery(array('post_type' => 'any', 'orderby' => 'date'))
-		]);
+	    $view = new SitemapView(new OowpQuery(array('post_type' => 'any', 'orderby' => 'date')));
+		return new XmlResponse($view);
 	}
 
 	/**
@@ -79,15 +78,9 @@ abstract class OowpRouter extends Router {
 	 * @route /default/route/when/no/other/match
 	 */
 	protected function defaultPost($slug) {
-		$post = $this->helper->querySingle(array('name' => $slug, 'post_type' => 'any'), true);
-
-		$response = $this->helper->createDefaultResponse([
-			'post' => $post
-		]);
-		if ($response instanceof TemplatedResponse && $post->post_type == 'page' && $response->viewExists('page-' . $post->post_name)) {
-			$response->viewName = 'page-' . $post->post_name;
-		}
-		return $response;
+		return [
+			'post' => $this->helper->querySingle(array('name' => $slug, 'post_type' => 'any'), true)
+		];
 	}
 
 	/**

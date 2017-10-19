@@ -2,12 +2,12 @@
 
 namespace Outlandish\Wordpress\Routemaster\Oowp\Response;
 
-use Outlandish\Wordpress\Oowp\Views\OowpView;
+use Outlandish\Wordpress\Routemaster\Oowp\View\RoutemasterOowpView;
 use Outlandish\Wordpress\Routemaster\Response\RoutemasterResponse;
 
 class ViewResponse extends RoutemasterResponse
 {
-	/** @var OowpView */
+	/** @var RoutemasterOowpView */
 	public $view;
 
 	protected function render()

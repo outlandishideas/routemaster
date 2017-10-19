@@ -2,13 +2,24 @@
 
 namespace Outlandish\Wordpress\Routemaster\Response;
 
-class HtmlResponse extends TemplatedResponse
-{
-	public static $defaultLayout = 'layout';
+use Outlandish\Wordpress\Routemaster\View\Renderable;
 
-	public function __construct($outputArgs = [])
-	{
-		parent::__construct($outputArgs);
-		$this->layout = self::$defaultLayout;
-	}
+class HtmlResponse extends RoutemasterResponse
+{
+    protected $view;
+
+    /**
+     * @param Renderable $view
+     */
+    public function __construct($view)
+    {
+        parent::__construct([]);
+        $this->view = $view;
+    }
+
+    protected function render()
+    {
+        $this->view->render();
+    }
+
 }
