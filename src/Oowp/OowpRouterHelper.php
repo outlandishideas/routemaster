@@ -91,12 +91,12 @@ class OowpRouterHelper extends RouterHelper
 			throw new RoutemasterException('Not found', 404);
 		}
 
-		$post = $query[0];
+		$oowpPost = $query[0];
+		$post = $oowpPost->get_post();
 
 		if ($redirectCanonical) {
-			$this->redirectCanonical($post);
+    			$this->redirectCanonical($oowpPost);
 		}
-
-		return $post;
+		return $oowpPost;
 	}
 }
