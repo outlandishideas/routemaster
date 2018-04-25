@@ -41,8 +41,9 @@ abstract class Router
 	 */
 	public function setup()
 	{
-        $requestUrl = $_SERVER['REQUEST_URI'];
-        $isJsonRequest =  strpos($requestUrl, '/wp-json') === 0 ;
+        $requestUrl = (isset($_SERVER['HTTPS']) ? "https" : "http")  . "://" . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+        $requestPath = str_replace(home_url(), "", $requestUrl);
+        $isJsonRequest =  strpos($requestPath, '/wp-json') === 0 ;
 
         if (is_admin() || !defined('WP_USE_THEMES') || $isJsonRequest) {
             //don't do any routing for admin pages or wp-json API requests
