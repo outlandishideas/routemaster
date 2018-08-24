@@ -42,7 +42,7 @@ abstract class Router
 	public function setup()
 	{
 		if (is_admin() || !defined('WP_USE_THEMES')) {
-			//don't do any routing for admin pages or wp-json API requests
+			//don't do any routing for admin pages
 			return;
 		}elseif (!get_option('permalink_structure')) {
 			$url = admin_url('options-permalink.php');
@@ -124,7 +124,7 @@ abstract class Router
         $requestUri = ltrim($requestUri, '/'); //ensure left-leading "/" is stripped.
 	    $isJsonRequest =  strpos($requestUri, 'wp-json') === 0 ;
 
-	    if (is_admin() || !defined('WP_USE_THEMES') || $isJsonRequest) {
+	    if ($isJsonRequest) {
 		    //don't do any routing for admin pages or wp-json API requests
 		    return;
 	    }
