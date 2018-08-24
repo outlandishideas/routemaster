@@ -41,7 +41,10 @@ abstract class Router
 	 */
 	public function setup()
 	{
-        if (!get_option('permalink_structure')) {
+		if (is_admin() || !defined('WP_USE_THEMES')) {
+			//don't do any routing for admin pages or wp-json API requests
+			return;
+		}elseif (!get_option('permalink_structure')) {
 			$url = admin_url('options-permalink.php');
 			die("Permalinks must be <a href='$url'>enabled</a>.");
 		}
