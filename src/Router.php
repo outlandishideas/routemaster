@@ -125,7 +125,7 @@ abstract class Router
 	    $isJsonRequest =  strpos($requestUri, 'wp-json') === 0 ;
 
 	    if ($isJsonRequest) {
-		    //don't do any routing for admin pages or wp-json API requests
+		    //don't do any routing wp-json API requests
 		    return;
 	    }
 
