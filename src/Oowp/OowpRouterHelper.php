@@ -69,6 +69,8 @@ class OowpRouterHelper extends RouterHelper
 	 */
 	public function querySingle($args, $redirectCanonical = false) {
 		global $post;
+		global $wp_query;
+
 
 		if (isset($_GET['preview']) && $_GET['preview'] == 'true') {
 			//currently published posts just need this to show the latest autosave instead
@@ -93,6 +95,11 @@ class OowpRouterHelper extends RouterHelper
 
 		$oowpPost = $query[0];
 		$post = $oowpPost->get_post();
+
+		if($post->post_type == "page"){
+			$wp_query->is_page = True;
+		}
+
 
 		if ($redirectCanonical) {
     			$this->redirectCanonical($oowpPost);
