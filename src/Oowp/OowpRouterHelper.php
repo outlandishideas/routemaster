@@ -88,6 +88,7 @@ class OowpRouterHelper extends RouterHelper
         $query = $this->query($args);
         //no matched posts so 404
         if (!count($query)) {
+            $query->is_404 = true;
             throw new RoutemasterException('Not found', 404);
         }
 
