@@ -80,7 +80,8 @@ class OowpRouterHelper extends RouterHelper
             }
 
             //for unpublished posts and posts returned to draft, allow draft status
-            $args['post_status'] = array('draft', 'publish', 'auto-draft');
+	        //for being able to preview edits of existing pages, allow inherit
+            $args['post_status'] = array('draft', 'publish', 'auto-draft', 'inherit');
 
             $redirectCanonical = false;
         }
