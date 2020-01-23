@@ -86,7 +86,14 @@ class OowpRouterHelper extends RouterHelper
             $redirectCanonical = false;
         }
 
-        $query = $this->query($args);
+		$query = $this->query( $args );
+		//no matched posts, so first check if this is a logged in user with a private post
+		if ( ( ! count( $query ) ) && is_user_logged_in() ) {
+			$args['author']      = get_current_user_id();
+			$args['post_status'] = 'private';
+			$query               = $this->query( $args );
+		}
+
         //no matched posts so 404
         if (!count($query)) {
             $query->is_404 = true;
