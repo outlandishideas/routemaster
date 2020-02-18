@@ -125,7 +125,7 @@ abstract class Router
 	    $isJsonRequest =  strpos($requestUri, 'wp-json') === 0 ;
 
         //adding support for preview. PROSPECT-526
-        if ( ! get_query_var('preview')) {
+        if (isset($_REQUEST['preview']) && $_REQUEST['preview']) {
             $requestUri = $_SERVER['REQUEST_URI'];
         }
 
