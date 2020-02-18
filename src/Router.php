@@ -146,6 +146,13 @@ abstract class Router
 		$matchingRoutes = [];
 		foreach ($allRoutes as $route) {
 			if (preg_match($route->pattern, $this->requestUri, $matches)) {
+                if ( ! get_query_var('preview')) {
+                    // If this is a preview, the matches resulted in an ID.
+                    if (is_numeric($matches[1])) {
+                        //replace it with the slug
+                        $matches[1] = get_post_field('post_name', $matches[1]);
+                    }
+                }
 				array_shift($matches); //remove first element
 				$matchingRoutes[] = [
 					'route' => $route,
