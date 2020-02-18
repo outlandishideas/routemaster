@@ -124,6 +124,11 @@ abstract class Router
         $requestUri = ltrim($requestUri, '/'); //ensure left-leading "/" is stripped.
 	    $isJsonRequest =  strpos($requestUri, 'wp-json') === 0 ;
 
+        //adding support for preview. PROSPECT-526
+        if ( ! get_query_var('preview')) {
+            $requestUri = $_SERVER['REQUEST_URI'];
+        }
+
 	    if ($isJsonRequest) {
 		    //don't do any routing wp-json API requests
 		    return;
