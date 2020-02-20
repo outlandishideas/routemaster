@@ -116,18 +116,18 @@ abstract class Router
     {
         global $wp_query;
 
-        //strip base dir and query string from request URI
-        $base = dirname($_SERVER['SCRIPT_NAME']);
-
-        $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $requestUri = preg_replace("|^$base/?|", '', $requestUri);
-        $requestUri = ltrim($requestUri, '/'); //ensure left-leading "/" is stripped.
-	    $isJsonRequest =  strpos($requestUri, 'wp-json') === 0 ;
-
-        //adding support for preview. PROSPECT-526
-        if (isset($_REQUEST['preview']) && $_REQUEST['preview']) {
+        if ( ! empty($_REQUEST['preview'])) {
+            //adding support for preview. PROSPECT-526
             $requestUri = $_SERVER['REQUEST_URI'];
+        } else {
+            //strip base dir and query string from request URI
+            $base       = dirname($_SERVER['SCRIPT_NAME']);
+            $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $requestUri = preg_replace("|^$base/?|", '', $requestUri);
+            $requestUri = ltrim($requestUri, '/'); //ensure left-leading "/" is stripped.
         }
+
+        $isJsonRequest = strpos($requestUri, 'wp-json') === 0;
 
 	    if ($isJsonRequest) {
 		    //don't do any routing wp-json API requests
