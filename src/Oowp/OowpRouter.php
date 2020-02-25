@@ -29,7 +29,7 @@ abstract class OowpRouter extends Router
     {
         return array_merge(parent::getDefaultRoutePatterns(), [
             '|^sitemap.xml$|i' => 'sitemap', //xml sitemap for google etc
-            '|^__preview__/([^/]+)/(\d+)/?$|' => 'previewPost', //__preview_/{post type}/{post id}
+            '|^__preview__/([^/]+)/(\d+)/?$|' => 'previewPost', //__preview__/{post type}/{post id}
             '|([^/]+)/?$|' => 'defaultPost', //matches blah/blah/slug
             '|^$|' => 'frontPage' //matches empty string
         ]);
