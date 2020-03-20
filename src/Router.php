@@ -122,12 +122,11 @@ abstract class Router
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $requestUri = preg_replace("|^$base/?|", '', $requestUri);
         $requestUri = ltrim($requestUri, '/'); //ensure left-leading "/" is stripped.
-	    $isJsonRequest =  strpos($requestUri, 'wp-json') === 0 ;
 
-	    if ($isJsonRequest) {
-		    //don't do any routing wp-json API requests
-		    return;
-	    }
+        // jump out now if this is e.g. a wp-json request
+        if ($this->shouldIgnoreRequest($requestUri)) {
+            return;
+        }
 
 		$allRoutes = $this->buildRoutes();
 
@@ -185,6 +184,13 @@ abstract class Router
 			$wp_query->is_404 = true;
 			$this->dispatch($this, 'show404');
 		}
+    }
+
+    protected function shouldIgnoreRequest($requestUri)
+    {
+        // don't do any routing for wp-json API requests
+        // (rest_route parameter is used when permalinks are not prettified: https://developer.wordpress.org/rest-api/extending-the-rest-api/routes-and-endpoints/#routes-vs-endpoints)
+        return strpos($requestUri, 'wp-json') === 0 || !empty($_GET['rest_route']);
     }
 
 	/**
