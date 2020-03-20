@@ -122,7 +122,7 @@ abstract class Router
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $requestUri = preg_replace("|^$base/?|", '', $requestUri);
         $requestUri = ltrim($requestUri, '/'); //ensure left-leading "/" is stripped.
-	    $isJsonRequest =  strpos($requestUri, 'wp-json') === 0 ;
+	    $isJsonRequest =  strpos($requestUri, 'wp-json') === 0 || !empty($_GET['rest_route']);
 
 	    if ($isJsonRequest) {
 		    //don't do any routing wp-json API requests
