@@ -20,6 +20,11 @@ class JsonResponse extends RoutemasterResponse {
 	{
 		http_response_code($this->status);
 
+		// don't output anything for 'no content' or 'not modified' statuses
+		if (!$this->outputArgs && in_array($this->status, [204, 304])) {
+		    return;
+        }
+
 		// zip response if accepted
 		if (isset($_SERVER['HTTP_ACCEPT_ENCODING']) && substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
 			ob_start('ob_gzhandler');
