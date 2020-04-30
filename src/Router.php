@@ -116,8 +116,11 @@ abstract class Router
     {
         global $wp_query;
 
-        //strip base dir and query string from request URI
-        $base = dirname($_SERVER['SCRIPT_NAME']);
+        // strip base dir and query string from request URI
+        $base = '';
+        if (preg_match('#\.php#', $_SERVER['SCRIPT_NAME'])) {
+            $base = dirname($_SERVER['SCRIPT_NAME']);
+        }
 
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $requestUri = preg_replace("|^$base/?|", '', $requestUri);
