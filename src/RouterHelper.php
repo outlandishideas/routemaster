@@ -32,19 +32,19 @@ class RouterHelper
     }
 
     public function isPost() {
-        return $this->getRequestMethod() == 'POST';
+        return $this->getRequestMethod() === 'POST';
     }
 
     public function isGet() {
-        return $this->getRequestMethod() == 'GET';
+        return $this->getRequestMethod() === 'GET';
     }
 
     public function isPut() {
-        return $this->getRequestMethod() == 'PUT';
+        return $this->getRequestMethod() === 'PUT';
     }
 
     public function isDelete() {
-        return $this->getRequestMethod() == 'DELETE';
+        return $this->getRequestMethod() === 'DELETE';
     }
 
     public function getRequestBody() {

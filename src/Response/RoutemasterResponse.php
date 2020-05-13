@@ -6,7 +6,8 @@ abstract class RoutemasterResponse
 {
 	public $headers = [];
 	public $outputArgs = [];
-	public $routeName = null;
+	/** @var string|null */
+	public $routeName;
 
 	public function __construct($outputArgs = [])
 	{
@@ -22,7 +23,7 @@ abstract class RoutemasterResponse
 		$this->routeName = $routeName;
 	}
 
-	final function handleRequest()
+	final public function handleRequest()
 	{
 		$this->preRender();
 		$this->render();

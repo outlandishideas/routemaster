@@ -36,8 +36,8 @@ abstract class OowpRouter extends Router
     }
 
 
-    /** @var null Used in permalinkHook function, to prevent infinite recursion */
-    protected $permalinkHookPostId = null;
+    /** @var int|null Used in permalinkHook function, to prevent infinite recursion */
+    protected $permalinkHookPostId;
 
     /**
      * Overwrites the post_link with the post's permalink()
