@@ -9,6 +9,11 @@
       "Outlandish\\Wordpress\\Routemaster\\": "src/"
     }
   },
+  "require": {
+    "php": ">=5.6",
+    "ext-json": "*",
+    "outlandish/oowp": "2.*"
+  },
   "authors": [
     {
       "name": "Rasmus Winter",

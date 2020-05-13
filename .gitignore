@@ -1,1 +1,10 @@
-.idea
+## Composer ##
+vendor/
+wp-content/mu-plugins/
+# Locked versions won't be reflected in installations, so not having any
+# is probably less confusing.
+# https://getcomposer.org/doc/02-libraries.md#lock-file
+composer.lock
+
+## IDEs ##
+.idea/
