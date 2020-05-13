@@ -1,6 +1,6 @@
 # Routemaster WordPress plugin
 
-Replaces the built-in WordPress routing logic with one defined by url patterns
+Replaces the built-in WordPress routing logic with one defined by URL patterns.
 
 ## Installation
 
@@ -12,3 +12,13 @@ Replaces the built-in WordPress routing logic with one defined by url patterns
 $router = MyRouter::getInstance();
 $router->setup();
 ~~~~
+
+### Use with [OOWP](https://github.com/outlandishideas/oowp)
+
+To successfully extend `OowpRouter` and gain router awareness of post objects,
+you should also install OOWP. This is optional if you avoid the
+`Outlandish\Wordpress\Routemaster\Oowp` namespace.
+
+To install it:
+
+    composer require outlandish/oowp

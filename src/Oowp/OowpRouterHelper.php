@@ -40,10 +40,10 @@ class OowpRouterHelper extends RouterHelper
 	 * @param WordpressPost $post
 	 */
 	protected function redirectCanonical($post) {
-		$scheme = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
+		$scheme = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
 		$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 		$permalink = $post->permalink();
-		if ("$scheme://$_SERVER[HTTP_HOST]$path" != $permalink) {
+		if ("$scheme://$_SERVER[HTTP_HOST]$path" !== $permalink) {
 			wp_redirect($permalink);
 			die;
 		}
@@ -70,7 +70,7 @@ class OowpRouterHelper extends RouterHelper
 	public function querySingle($args, $redirectCanonical = false) {
         global $post;
 
-        if (current_user_can('edit_posts') && (isset($_GET['preview']) && $_GET['preview'] == 'true')) {
+        if (current_user_can('edit_posts') && (isset($_GET['preview']) && $_GET['preview'] === 'true')) {
             //currently published posts just need this to show the latest autosave instead
             $args['preview'] = 'true';
 

@@ -9,6 +9,13 @@
       "Outlandish\\Wordpress\\Routemaster\\": "src/"
     }
   },
+  "require": {
+    "php": ">=5.6",
+    "ext-json": "*"
+  },
+  "suggest": {
+    "outlandish/oowp": "To optionally use a post-object-aware version of the router and corresponding views"
+  },
   "authors": [
     {
       "name": "Rasmus Winter",

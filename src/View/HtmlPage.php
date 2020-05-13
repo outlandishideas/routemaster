@@ -31,6 +31,6 @@ class HtmlPage implements Renderable
 
         </body>
         </html>
-        <?
+        <?php
     }
 }

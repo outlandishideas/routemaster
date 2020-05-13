@@ -5,6 +5,10 @@ namespace Outlandish\Wordpress\Routemaster\Response;
 class JsonResponse extends RoutemasterResponse {
 	public $status;
 
+    /**
+     * @param array|string  $outputArgs
+     * @param int           $status
+     */
 	public function __construct($outputArgs = [], $status = 200)
 	{
 		if (is_string($outputArgs)) {
