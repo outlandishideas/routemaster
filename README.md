@@ -1,6 +1,6 @@
 # Routemaster WordPress plugin
 
-Replaces the built-in WordPress routing logic with one defined by url patterns
+Replaces the built-in WordPress routing logic with one defined by URL patterns.
 
 ## Installation
 
