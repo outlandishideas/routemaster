@@ -190,7 +190,7 @@ abstract class Router
     {
         // don't do any routing for wp-json API requests
         // (rest_route parameter is used when permalinks are not prettified: https://developer.wordpress.org/rest-api/extending-the-rest-api/routes-and-endpoints/#routes-vs-endpoints)
-        return strpos($requestUri, 'wp-json') === 0 || !empty($_GET['rest_route']);
+        return strpos($requestUri, 'wp-json') === 0 || strpos($requestUri, 'index.php/wp-json') === 0 ||  !empty($_GET['rest_route']);
     }
 
 	/**
