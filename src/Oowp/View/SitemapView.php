@@ -40,7 +40,7 @@ class SitemapView extends RoutemasterOowpView
     protected function renderPost($post)
     {
         ?>
-            <loc><?php echo $post->permalink(); ?></loc>
+            <loc><?php echo str_replace('&', '&amp;', $post->permalink()); ?></loc>
             <lastmod><?php echo $post->modifiedDate('Y-m-d'); ?></lastmod>
         <?php
     }
